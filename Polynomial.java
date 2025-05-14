@@ -28,21 +28,61 @@ public class Polynomial
             return equation;
         }
 
-        public String toString()
-        {
-            String polynom = "["+id + "] Y = ";
-            for (int i = coefficient.length - 1; i >= 0; i--)
-            {
-                if (i >= 0 && i <= coefficient.length - 1 && coefficient[i] >= 0)
-                {
-                    polynom+= " + ";
+    public String toString() {
+        String polynom = "[" + id + "] Y = ";
+        boolean first = true;
+
+        for (int i = coefficient.length - 1; i >= 0; i--) {
+            if (coefficient[i] == 0) {
+                continue; // skip zero terms
+            }
+
+            if (!first) {
+                if (coefficient[i] > 0) {
+                    polynom += " + ";
+                } else {
+                    polynom += " - ";
                 }
-                polynom += coefficient[i] + "x^" + i;
-            } ;
-            return polynom;
+            } else {
+                if (coefficient[i] < 0) {
+                    polynom += "-";
+                }
+                first = false;
+            }
+
+            double absVal = Math.abs(coefficient[i]);
+            if (absVal != 1 || i == 0) {
+                polynom += absVal;
+            }
+
+            if (i > 0) {
+                polynom += "x";
+                if (i > 1) {
+                    polynom += "^" + i;
+                }
+            }
         }
 
-        public String derivative()
+        if (first) {
+            polynom += "0"; // when all coefficients are zero
+        }
+
+        return polynom;
+    }
+
+    public Polynomial derivative() {
+        if (coefficient.length <= 1) {
+            return new Polynomial(new double[]{0}); // derivative of constant is 0
+        }
+
+        double[] derivedCoefficients = new double[coefficient.length - 1];
+        for (int i = 1; i < coefficient.length; i++) {
+            derivedCoefficients[i - 1] = coefficient[i] * i;
+        }
+        return new Polynomial(derivedCoefficients);
+    }
+
+        /*public String derivative()
         {
             String dq="["+id + "] Y' = ";
             for (int i = coefficient.length - 1; i >= 1; i--)
@@ -54,7 +94,7 @@ public class Polynomial
             } ;
 
             return dq;
-        }
+        }*/
 
         public double evaluate( double x)
         {
@@ -101,4 +141,19 @@ public class Polynomial
         }
         */
 
+    public Polynomial add(Polynomial other) {
+        int max = Math.max(this.coefficient.length, other.coefficient.length);
+        double[] result = new double[max];
+
+        for (int i = 0; i < max; i++) {
+            if (i < this.coefficient.length) {
+                result[i] += this.coefficient[i];
+            }
+            if (i < other.coefficient.length) {
+                result[i] += other.coefficient[i];
+            }
+        }
+
+        return new Polynomial(result);
+    }
 }
